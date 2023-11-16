@@ -24,6 +24,33 @@
             <button class="btn d-block btn-success">Отправить</button>
         </div>
     </div>
+    
+    <table class="table mt-5">
+        <thead class="table-dark">
+        <tr>
+            <th>#</th>
+            <th>Дата и время</th>
+            <th>Комманда</th>
+            <th>Параметр 1</th>
+            <th>Параметр 2</th>
+            <th>Параметр 3</th>
+            <th>Статус</th>
+        </tr>
+        </thead>
+        <tbody id="terminal-commands">
+        </tbody>
+    </table>
+    
+    <div class="d-flex justify-content-md-center">
+        <ul class="pagination">
+            <li class="page-item"><a class="page-link" href="#">Previous</a></li>
+            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+            <li class="page-item"><a class="page-link" href="#">2</a></li>
+            <li class="page-item"><a class="page-link" href="#">3</a></li>
+            <li class="page-item"><a class="page-link" href="#">Next</a></li>
+        </ul>  
+    </div>
+    
 </div>
 
 <div id="commandTypes" class="d-none">
@@ -33,12 +60,17 @@
 <script>
     const commands = JSON.parse(document.getElementById('commandTypes').textContent);
     const commandSelectBox = document.getElementById('command');
+    const terminalIdInput = document.getElementById('terminalId');
     const commandParameters = document.querySelector('.parameters-container');
-
+    const terminalCommandsContainer = document.getElementById('terminal-commands');
+    
     populateCommandSelectBox();
     updateParameters();
     
     commandSelectBox.addEventListener('change', updateParameters)
+    terminalIdInput.addEventListener('change', fetchTerminalCommands)
+        
+    fetchTerminalCommands();
 
     function populateCommandSelectBox() {
         for (let command of commands) {
@@ -70,6 +102,51 @@
             container.appendChild(input);
             
             commandParameters.appendChild(container);
+        }
+    }
+    
+    async function fetchTerminalCommands() {
+        const response = await fetch(`api/terminal/${terminalIdInput.value}/commands`); 
+        const pagedList = await response.json();
+        
+        terminalCommandsContainer.innerHTML = '';
+        
+        let index = 1;
+        for (let command of pagedList.items) {
+            const commandType = commands.find(x => x.id == command.commandId);
+            
+            const indexElement = document.createElement('th');
+            indexElement.textContent = index.toString();
+            index++;
+            
+            const createdAt = document.createElement('td');
+            createdAt.textContent = command.createdAt;
+            
+            const name = document.createElement('td');
+            name.textContent = commandType.name;
+            
+            const firstParameter = document.createElement('td');
+            firstParameter.textContent = command.parameterValues[0];
+            
+            const secondParameter = document.createElement('td');
+            secondParameter.textContent = command.parameterValues[1];
+            
+            const thirdParameter = document.createElement('td');
+            thirdParameter.textContent = command.parameterValues[2];
+            
+            const state = document.createElement('td');
+            state.textContent = command.state;
+            
+            const row = document.createElement('tr');
+            row.appendChild(indexElement);
+            row.appendChild(createdAt);
+            row.appendChild(name);
+            row.appendChild(firstParameter);
+            row.appendChild(secondParameter);
+            row.appendChild(thirdParameter);
+            row.appendChild(state);
+            
+            terminalCommandsContainer.appendChild(row);
         }
     }
 </script>

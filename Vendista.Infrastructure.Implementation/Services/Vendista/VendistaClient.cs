@@ -15,6 +15,8 @@ public class VendistaClient : IVendistaClient, IDisposable
     
     private string authenticationToken = string.Empty;
 
+    private readonly string login;
+    private readonly string password;
     private readonly RestClient client;
     
     /// <summary>
@@ -22,17 +24,20 @@ public class VendistaClient : IVendistaClient, IDisposable
     /// </summary>
     /// <param name="login">Login.</param>
     /// <param name="password">Password.</param>
-    public VendistaClient()
+    public VendistaClient(string login, string password)
     {
+        this.login = login;
+        this.password = password;
+        
         var options = new RestClientOptions(baseAddress);
         client = new RestClient(options);
     }
 
     /// <inheritdoc/>
-    public async Task AuthenticateAsync(string login, string password)
+    public async Task InitAsync(CancellationToken cancellationToken)
     {
         var request = new RestRequest($"token?login={login}&password={password}");
-        var response = await client.GetAsync<AuthenticationResponse>(request);
+        var response = await client.GetAsync<AuthenticationResponse>(request, cancellationToken);
         authenticationToken = response.Token;
     }
     
@@ -40,13 +45,70 @@ public class VendistaClient : IVendistaClient, IDisposable
     public async Task<IEnumerable<CommandType>> GetAllCommandTypesAsync(CancellationToken cancellationToken)
     {
         ThrowIfNotAuthenticated();
-
+        
         var request = new RestRequest($"/commands/types?token={authenticationToken}");
         var response = await client.GetAsync(request, cancellationToken);
-
+        
         var pagedList = JObject.Parse(response.Content);
         var commands = pagedList["items"].Select(ParseCommandType);
         return commands;
+    }
+
+    /// <inheritdoc/>
+    public async Task<PagedList<TerminalCommand>> SearchTerminalCommandsAsync(TerminalCommandsSearchOptions searchOptions, CancellationToken cancellationToken)
+    {
+        ThrowIfNotAuthenticated();
+
+        var request = new RestRequest($"/terminals/{searchOptions.TerminalId}/commands")
+            .AddQueryParameter("token", authenticationToken)
+            .AddQueryParameter("pageNumber", searchOptions.Page)
+            .AddQueryParameter("itemsOnPage", searchOptions.PageSize);
+        
+        var response = await client.GetAsync(request, cancellationToken);
+        
+        var pagedList = JObject.Parse(response.Content);
+        var result = new PagedList<TerminalCommand>
+        {
+            Page = pagedList.Value<int>("page_number"),
+            PageSize = pagedList.Value<int>("items_per_page"),
+            TotalItems = pagedList.Value<int>("items_count"),
+            Items = pagedList["items"].Select(ParseTerminalCommand)
+        };
+        
+        return result;
+    }
+
+    private TerminalCommand ParseTerminalCommand(JToken terminalCommand)
+    {
+        var command = new TerminalCommand
+        {
+            Id = terminalCommand.Value<int>("id"),
+            TerminalId = terminalCommand.Value<int>("terminal_id"),
+            CommandId = terminalCommand.Value<int>("command_id"),
+            State = terminalCommand.Value<string>("state_name"),
+            CreatedAt = terminalCommand.Value<DateTime>("time_created"),
+            ParameterValues = ParseTerminalCommandParameterValues(terminalCommand)
+        };
+
+        return command;
+    }
+
+    private IEnumerable<int> ParseTerminalCommandParameterValues(JToken terminalCommand)
+    {
+        var parameterValues = new List<int>();
+        
+        for (int i = 1; i < int.MaxValue; i++)
+        {
+            var parameterValue = terminalCommand.Value<int?>($"parameter{i}");
+            if (!parameterValue.HasValue)
+            {
+                break;
+            }
+                
+            parameterValues.Add(parameterValue.Value);
+        }
+
+        return parameterValues;
     }
 
     private CommandType ParseCommandType(JToken commandType)
@@ -55,7 +117,7 @@ public class VendistaClient : IVendistaClient, IDisposable
         {
             Id = commandType.Value<int>("id"),
             Name = commandType.Value<string>("name"),
-            Parameters = ParseCommandTypeParameters(commandType),
+            Parameters = ParseCommandTypeParameters(commandType)
         };
     }
     

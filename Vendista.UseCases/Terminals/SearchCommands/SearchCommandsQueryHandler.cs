@@ -23,7 +23,7 @@ internal class SearchCommandsQueryHandler : IRequestHandler<SearchCommandsQuery,
     /// <inheritdoc />
     public async Task<IEnumerable<CommandType>> Handle(SearchCommandsQuery request, CancellationToken cancellationToken)
     {
-        await client.AuthenticateAsync("user2", "password2");
+        await client.InitAsync(cancellationToken);
         var commandTypes = await client.GetAllCommandTypesAsync(cancellationToken);
         return commandTypes;
     }

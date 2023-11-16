@@ -1,5 +1,6 @@
 using Vendista.Infrastructure.Abstractions.Services;
 using Vendista.Infrastructure.Implementation.Services.Vendista;
+using Vendista.UseCases.Common;
 using Vendista.UseCases.Terminals.SearchCommands;
 
 namespace Vendista.WebApp;
@@ -21,7 +22,12 @@ public class Startup
         services.AddMediatR(configuration =>
             configuration.RegisterServicesFromAssembly(typeof(SearchCommandsQuery).Assembly));
 
-        services.AddTransient<IVendistaClient, VendistaClient>();
+        services.AddAutoMapper(typeof(CommonProfile).Assembly);
+        
+        services.AddTransient<IVendistaClient, VendistaClient>(serviceProvider =>
+        {
+            return new VendistaClient("user2", "password2");
+        });
     }
 
     /// <summary>
