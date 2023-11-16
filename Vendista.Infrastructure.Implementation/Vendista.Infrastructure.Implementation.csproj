@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Vendista.Domain\Vendista.Domain.csproj" />
+      <ProjectReference Include="..\Vendista.Infrastructure.Abstractions\Vendista.Infrastructure.Abstractions.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="RestSharp" Version="110.0.0" />
+    </ItemGroup>
+
+</Project>
