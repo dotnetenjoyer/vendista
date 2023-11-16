@@ -1,4 +1,5 @@
 using MediatR;
+using Vendista.Domain.Entities;
 using Vendista.Infrastructure.Abstractions.Services;
 
 namespace Vendista.UseCases.Terminals.SearchCommands;
@@ -6,7 +7,7 @@ namespace Vendista.UseCases.Terminals.SearchCommands;
 /// <summary>
 /// Handler for <see cref="SearchCommandsQuery"/>.
 /// </summary>
-internal class SearchCommandsQueryHandler : IRequestHandler<SearchCommandsQuery>
+internal class SearchCommandsQueryHandler : IRequestHandler<SearchCommandsQuery, IEnumerable<CommandType>>
 {
     private readonly IVendistaClient client;
 
@@ -20,11 +21,10 @@ internal class SearchCommandsQueryHandler : IRequestHandler<SearchCommandsQuery>
     }
 
     /// <inheritdoc />
-    public async Task Handle(SearchCommandsQuery request, CancellationToken cancellationToken)
+    public async Task<IEnumerable<CommandType>> Handle(SearchCommandsQuery request, CancellationToken cancellationToken)
     {
         await client.AuthenticateAsync("user2", "password2");
         var commandTypes = await client.GetAllCommandTypesAsync(cancellationToken);
-
-        // throw new NotImplementedException();
+        return commandTypes;
     }
 }

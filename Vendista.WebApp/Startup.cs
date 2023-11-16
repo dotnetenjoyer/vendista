@@ -15,7 +15,8 @@ public class Startup
     /// <param name="services">Services to configure.</param>
     public void ConfigureServices(IServiceCollection services)
     {
-        services.AddControllersWithViews();
+        services.AddControllersWithViews()
+            .AddRazorRuntimeCompilation();
 
         services.AddMediatR(configuration =>
             configuration.RegisterServicesFromAssembly(typeof(SearchCommandsQuery).Assembly));

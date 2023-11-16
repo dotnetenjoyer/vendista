@@ -31,3 +31,40 @@ public class PagedList<T>
     /// </summary>
     public IEnumerable<T> Items { get; set; }
 }
+
+// /// <summary>
+// /// Type of terminal command.
+// /// </summary>
+// public class CommandType
+// {
+//     /// <summary>
+//     /// Command id.
+//     /// </summary>
+//     public int Id { get; set; }
+//     
+//     /// <summary>
+//     /// Command type name.
+//     /// </summary>
+//     public string Name { get; set; }
+//
+//     /// <summary>
+//     /// Collection of command parameters.
+//     /// </summary>
+//     public IEnumerable<CommandParameter> Parameters { get; set; }
+// }
+
+// /// <summary>
+// /// Represent terminal command parameter.
+// /// </summary>
+// public class CommandParameter
+// {
+//     /// <summary>
+//     /// Parameter name.
+//     /// </summary>
+//     public string Name { get; set; }
+//     
+//     /// <summary>
+//     /// Parameter default value.
+//     /// </summary>
+//     public object DefaultValue { get; set; }
+// }

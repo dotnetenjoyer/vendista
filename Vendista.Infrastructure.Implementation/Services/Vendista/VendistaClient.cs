@@ -1,3 +1,4 @@
+using Newtonsoft.Json.Linq;
 using RestSharp;
 using Vendista.Domain.Entities;
 using Vendista.Infrastructure.Abstractions.Services;
@@ -41,11 +42,47 @@ public class VendistaClient : IVendistaClient, IDisposable
         ThrowIfNotAuthenticated();
 
         var request = new RestRequest($"/commands/types?token={authenticationToken}");
-        var response = await client.GetAsync<PagedList<CommandType>>(request, cancellationToken);
+        var response = await client.GetAsync(request, cancellationToken);
 
-        return response.Items;
+        var pagedList = JObject.Parse(response.Content);
+        var commands = pagedList["items"].Select(ParseCommandType);
+        return commands;
     }
 
+    private CommandType ParseCommandType(JToken commandType)
+    {
+        return new CommandType
+        {
+            Id = commandType.Value<int>("id"),
+            Name = commandType.Value<string>("name"),
+            Parameters = ParseCommandTypeParameters(commandType),
+        };
+    }
+    
+    private IEnumerable<CommandParameter> ParseCommandTypeParameters(JToken commandType)
+    {
+        var parameters = new List<CommandParameter>();
+
+        for (int i = 1; i < int.MaxValue; i++)
+        {
+            var parameterName = commandType.Value<string>($"parameter_name{i}");
+            if (string.IsNullOrEmpty(parameterName))
+            {
+                break;
+            }
+                
+            var parameter = new CommandParameter
+            {
+                Name = parameterName,
+                DefaultValue = commandType.Value<string>($"parameter_default_value{i}")
+            };
+
+            parameters.Add(parameter);
+        }
+
+        return parameters;
+    }
+    
     private void ThrowIfNotAuthenticated()
     {
         if (string.IsNullOrEmpty(authenticationToken))
