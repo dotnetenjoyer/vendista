@@ -22,8 +22,15 @@ public interface IVendistaClient : IDisposable
     /// <summary>
     /// Search for terminal commands.
     /// </summary>
-    /// <param name="searchOptions">Search options.</param>
+    /// <param name="options">Search options.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns></returns>
-    Task<PagedList<TerminalCommand>> SearchTerminalCommandsAsync(TerminalCommandsSearchOptions searchOptions, CancellationToken cancellationToken);
+    /// <returns>Paged list.</returns>
+    Task<PagedList<TerminalCommand>> SearchTerminalCommandsAsync(TerminalCommandsSearchOptions options, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Add a new terminal command.
+    /// </summary>
+    /// <param name="options">Adding options.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    Task AddTerminalCommandAsync(TerminalCommandAddingOptions options, CancellationToken cancellationToken);
 }

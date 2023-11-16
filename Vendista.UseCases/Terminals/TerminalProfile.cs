@@ -1,5 +1,6 @@
 using AutoMapper;
 using Vendista.Infrastructure.Abstractions.Services;
+using Vendista.UseCases.Terminals.AddTerminalCommand;
 using Vendista.UseCases.Terminals.SearchTerminalCommands;
 
 namespace Vendista.UseCases.Terminals;
@@ -15,5 +16,6 @@ public class TerminalProfile : Profile
     public TerminalProfile()
     {
         CreateMap<SearchTerminalCommandsQuery, TerminalCommandsSearchOptions>();
+        CreateMap<AddTerminalCommandCommand, TerminalCommandAddingOptions>();
     }
 }

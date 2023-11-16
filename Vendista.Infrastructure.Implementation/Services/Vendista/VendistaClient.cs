@@ -9,11 +9,11 @@ namespace Vendista.Infrastructure.Implementation.Services.Vendista;
 /// <summary>
 /// Implementation of <see cref="IVendistaClient"/>.
 /// </summary>
-public class VendistaClient : IVendistaClient, IDisposable
+public class VendistaClient : IVendistaClient
 {
     private const string baseAddress = "http://178.57.218.210:398";
     
-    private string authenticationToken = string.Empty;
+    private string accessToken = string.Empty;
 
     private readonly string login;
     private readonly string password;
@@ -29,8 +29,7 @@ public class VendistaClient : IVendistaClient, IDisposable
         this.login = login;
         this.password = password;
         
-        var options = new RestClientOptions(baseAddress);
-        client = new RestClient(options);
+        client = new RestClient(new RestClientOptions(baseAddress));
     }
 
     /// <inheritdoc/>
@@ -38,7 +37,7 @@ public class VendistaClient : IVendistaClient, IDisposable
     {
         var request = new RestRequest($"token?login={login}&password={password}");
         var response = await client.GetAsync<AuthenticationResponse>(request, cancellationToken);
-        authenticationToken = response.Token;
+        accessToken = response.Token;
     }
     
     /// <inheritdoc/>
@@ -46,7 +45,7 @@ public class VendistaClient : IVendistaClient, IDisposable
     {
         ThrowIfNotAuthenticated();
         
-        var request = new RestRequest($"/commands/types?token={authenticationToken}");
+        var request = new RestRequest($"/commands/types?token={accessToken}");
         var response = await client.GetAsync(request, cancellationToken);
         
         var pagedList = JObject.Parse(response.Content);
@@ -55,14 +54,14 @@ public class VendistaClient : IVendistaClient, IDisposable
     }
 
     /// <inheritdoc/>
-    public async Task<PagedList<TerminalCommand>> SearchTerminalCommandsAsync(TerminalCommandsSearchOptions searchOptions, CancellationToken cancellationToken)
+    public async Task<PagedList<TerminalCommand>> SearchTerminalCommandsAsync(TerminalCommandsSearchOptions options, CancellationToken cancellationToken)
     {
         ThrowIfNotAuthenticated();
 
-        var request = new RestRequest($"/terminals/{searchOptions.TerminalId}/commands")
-            .AddQueryParameter("token", authenticationToken)
-            .AddQueryParameter("pageNumber", searchOptions.Page)
-            .AddQueryParameter("itemsOnPage", searchOptions.PageSize);
+        var request = new RestRequest($"/terminals/{options.TerminalId}/commands")
+            .AddQueryParameter("token", accessToken)
+            .AddQueryParameter("pageNumber", options.Page)
+            .AddQueryParameter("itemsOnPage", options.PageSize);
         
         var response = await client.GetAsync(request, cancellationToken);
         
@@ -77,6 +76,36 @@ public class VendistaClient : IVendistaClient, IDisposable
         
         return result;
     }
+
+    /// <inheritdoc />
+    public async Task AddTerminalCommandAsync(TerminalCommandAddingOptions options, CancellationToken cancellationToken)
+    {
+        ThrowIfNotAuthenticated();
+
+        var request = new RestRequest($"/terminals/{options.TerminalId}/commands")
+            .AddQueryParameter("token", accessToken)
+            .AddBody(PrepareJsonPayload(options), ContentType.Json);
+
+        await client.PostAsync(request, cancellationToken);
+    }
+
+    private string PrepareJsonPayload(TerminalCommandAddingOptions options)
+    {
+        var payload = new JObject
+        {
+            ["command_id"] = options.CommandTypeId
+        };
+
+        var commandValues = options.CommandValues.ToList();
+        for (int i = 0; i < commandValues.Count; i++)
+        {
+            payload[$"parameter{i + 1}"] = commandValues[i];
+        }
+
+        return payload.ToString();
+    }
+
+    #region Parse terminal command
 
     private TerminalCommand ParseTerminalCommand(JToken terminalCommand)
     {
@@ -111,6 +140,10 @@ public class VendistaClient : IVendistaClient, IDisposable
         return parameterValues;
     }
 
+    #endregion
+
+    #region Parse command type
+    
     private CommandType ParseCommandType(JToken commandType)
     {
         return new CommandType
@@ -144,10 +177,12 @@ public class VendistaClient : IVendistaClient, IDisposable
 
         return parameters;
     }
+
+    #endregion
     
     private void ThrowIfNotAuthenticated()
     {
-        if (string.IsNullOrEmpty(authenticationToken))
+        if (string.IsNullOrEmpty(accessToken))
         {
             throw new Exception("Is not authenticated");
         }

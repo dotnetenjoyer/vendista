@@ -1,11 +1,11 @@
 using MediatR;
 
-namespace Vendista.UseCases.Terminals.AddCommand;
+namespace Vendista.UseCases.Terminals.AddTerminalCommand;
 
 /// <summary>
-/// Command to add command to the terminal
+/// Command to add terminal command.
 /// </summary>
-public class AddCommandCommand : IRequest
+public class AddTerminalCommandCommand : IRequest
 {
     /// <summary>
     /// Terminal ID.
@@ -15,10 +15,10 @@ public class AddCommandCommand : IRequest
     /// <summary>
     /// Command type ID.
     /// </summary>
-    public int CommandId { get; set; }
+    public int CommandTypeId { get; set; }
     
     /// <summary>
     /// Collection of command parameter values.
     /// </summary>
-    public IEnumerable<string> ParameterValues { get; set; }
+    public IEnumerable<int> CommandValues { get; set; }
 }
