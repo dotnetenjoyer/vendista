@@ -5,7 +5,7 @@
         Отправка команды на терминал
     </div>
     
-    <div class="form">
+    <div class="form form-disabled">
         <div class="row">
             <div class="col-6">
                 <label for="terminalId" class="form-label">ID Терминала(ов)</label>
@@ -59,100 +59,145 @@
 
 <script>
     const commands = JSON.parse(document.getElementById('commandTypes').textContent);
+    const defaultCommand = { id: 0, name: 'Не выбрано' };
+    const commandsToPopulate = [defaultCommand, ...commands];
+
     const commandSelectBox = document.getElementById('command');
+    const commandParametersForm = document.querySelector('.parameters-container');
+
     const terminalIdInput = document.getElementById('terminalId');
-    const commandParameters = document.querySelector('.parameters-container');
-    const terminalCommandsContainer = document.getElementById('terminal-commands');
+    const terminalCommandsTableBody = document.getElementById('terminal-commands');
+
+    const formButton = document.getElementById('form-btn');
     
     populateCommandSelectBox();
-    updateParameters();
+    updatedParametersForm();
     fetchTerminalCommands();
     
-    commandSelectBox.addEventListener('change', updateParameters)
     terminalIdInput.addEventListener('change', fetchTerminalCommands)
-    
-    const formButton = document.getElementById('form-btn');
+    commandSelectBox.addEventListener('change', updatedParametersForm)
     formButton.addEventListener('click', submitForm);
     
     function populateCommandSelectBox() {
-        for (let command of commands) {
+        for (let command of commandsToPopulate) {
             let option = document.createElement('option');
-            option.text = command.name;
             option.value = command.id;
+            option.text = command.name;
             commandSelectBox.appendChild(option);
         }        
     }
 
-    function updateParameters(){
-        commandParameters.innerHTML = '';
-
-        const command = commands.find(x => x.id == commandSelectBox.value);
-
-        for (let parameter of command.parameters) {
+    function updatedParametersForm(){
+        removeAllChildNodes(commandParametersForm)
+        
+        if (commandSelectBox.value == defaultCommand.id) {
+            return;
+        }
+        
+        const selectedCommand = commands.find(x => x.id == commandSelectBox.value);
+        for (let parameter of selectedCommand.parameters) {
             const container = document.createElement('div');
             container.classList = 'mb-3';
-            
-            const input = document.createElement('input');
-            input.value = parameter.defaultValue;
-            input.classList = 'form-control';
-            
+
             const label = document.createElement('label');
             label.textContent = parameter.name;
             label.classList = 'form-label';
-            
+
+            const input = document.createElement('input');
+            input.value = parameter.defaultValue;
+            input.classList = 'form-control parameter-input';
+
             container.appendChild(label);
             container.appendChild(input);
-            
-            commandParameters.appendChild(container);
+            commandParametersForm.appendChild(container);
         }
     }
     
     async function fetchTerminalCommands() {
-        const response = await fetch(`api/terminal/${terminalIdInput.value}/commands`); 
+        const response = await fetch(`api/terminal/${terminalIdInput.value}/commands?pageSize=10`); 
         const pagedList = await response.json();
         
-        terminalCommandsContainer.innerHTML = '';
+        removeAllChildNodes(terminalCommandsTableBody)
         
         let index = 1;
-        for (let command of pagedList.items) {
-            const commandType = commands.find(x => x.id == command.commandId);
-            
-            const indexElement = document.createElement('th');
-            indexElement.textContent = index.toString();
+        for (const command of pagedList.items) {
+            const row = createRow(command, index);
+            terminalCommandsTableBody.appendChild(row);
             index++;
-            
-            const createdAt = document.createElement('td');
-            createdAt.textContent = command.createdAt;
-            
-            const name = document.createElement('td');
-            name.textContent = commandType.name;
-            
-            const firstParameter = document.createElement('td');
-            firstParameter.textContent = command.parameterValues[0];
-            
-            const secondParameter = document.createElement('td');
-            secondParameter.textContent = command.parameterValues[1];
-            
-            const thirdParameter = document.createElement('td');
-            thirdParameter.textContent = command.parameterValues[2];
-            
-            const state = document.createElement('td');
-            state.textContent = command.state;
-            
-            const row = document.createElement('tr');
-            row.appendChild(indexElement);
-            row.appendChild(createdAt);
-            row.appendChild(name);
-            row.appendChild(firstParameter);
-            row.appendChild(secondParameter);
-            row.appendChild(thirdParameter);
-            row.appendChild(state);
-            
-            terminalCommandsContainer.appendChild(row);
         }
     }
     
-    function submitForm() {
+    function createRow(terminalCommand, index){
+        const commandType = commands.find(x => x.id == terminalCommand.commandId);
+            
+        const indexElement = document.createElement('th');
+        indexElement.textContent = index.toString();
+            
+        const createdAt = document.createElement('td');
+        createdAt.textContent = terminalCommand.createdAt;
+            
+        const name = document.createElement('td');
+        name.textContent = commandType.name;
+            
+        const firstValue = document.createElement('td');
+        firstValue.textContent = terminalCommand.values[0];
+            
+        const secondValue = document.createElement('td');
+        secondValue.textContent = terminalCommand.values[1];
+            
+        const thirdValue = document.createElement('td');
+        thirdValue.textContent = terminalCommand.values[2];
+            
+        const state = document.createElement('td');
+        state.textContent = terminalCommand.state;
+            
+        const row = document.createElement('tr');
+        row.appendChild(indexElement);
+        row.appendChild(createdAt);
+        row.appendChild(name);
+        row.appendChild(firstValue);
+        row.appendChild(secondValue);
+        row.appendChild(thirdValue);
+        row.appendChild(state);
+        
+        return row;
+    }
+    
+    async function submitForm() {
+        if (terminalIdInput.value < 1 || commandSelectBox.value == defaultCommand.id)
+            return;
 
+        const payload = {
+            terminalId: terminalIdInput.value, 
+            commandTypeId: commandSelectBox.value,
+            commandValues: getParameterValues()    
+        }
+
+        await fetch('/api/Terminal/command', {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(payload)
+        });
+
+        commandSelectBox.value = defaultCommand.id;
+        commandSelectBox.dispatchEvent(new Event('change'));
+        
+        await fetchTerminalCommands();
+    }
+    
+    function getParameterValues(){
+        const parameterValues = [];
+        for (let input of document.querySelectorAll('.parameter-input')){
+            parameterValues.push(input.value);
+        }
+        return parameterValues;
+    }
+    
+    function removeAllChildNodes(parent) {
+        while (parent.firstChild) {
+            parent.removeChild(parent.firstChild);
+        }
     }
 </script>

@@ -61,7 +61,9 @@ public class VendistaClient : IVendistaClient
         var request = new RestRequest($"/terminals/{options.TerminalId}/commands")
             .AddQueryParameter("token", accessToken)
             .AddQueryParameter("pageNumber", options.Page)
-            .AddQueryParameter("itemsOnPage", options.PageSize);
+            .AddQueryParameter("itemsOnPage", options.PageSize)
+            .AddQueryParameter("orderByColumn", options.OrderBy)
+            .AddQueryParameter("orderDesc", options.OrderDesc);
         
         var response = await client.GetAsync(request, cancellationToken);
         
@@ -116,28 +118,28 @@ public class VendistaClient : IVendistaClient
             CommandId = terminalCommand.Value<int>("command_id"),
             State = terminalCommand.Value<string>("state_name"),
             CreatedAt = terminalCommand.Value<DateTime>("time_created"),
-            ParameterValues = ParseTerminalCommandParameterValues(terminalCommand)
+            Values = ParseValues(terminalCommand)
         };
 
         return command;
     }
 
-    private IEnumerable<int> ParseTerminalCommandParameterValues(JToken terminalCommand)
+    private IEnumerable<int> ParseValues(JToken terminalCommand)
     {
-        var parameterValues = new List<int>();
+        var values = new List<int>();
         
         for (int i = 1; i < int.MaxValue; i++)
         {
-            var parameterValue = terminalCommand.Value<int?>($"parameter{i}");
-            if (!parameterValue.HasValue)
+            var value = terminalCommand.Value<int?>($"parameter{i}");
+            if (!value.HasValue)
             {
                 break;
             }
                 
-            parameterValues.Add(parameterValue.Value);
+            values.Add(value.Value);
         }
 
-        return parameterValues;
+        return values;
     }
 
     #endregion

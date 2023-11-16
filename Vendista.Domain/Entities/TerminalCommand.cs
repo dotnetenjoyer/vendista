@@ -32,5 +32,5 @@ public class TerminalCommand
     /// <summary>
     /// Collection of parameter values.
     /// </summary>
-    public IEnumerable<int> ParameterValues { get; set; }
+    public IEnumerable<int> Values { get; set; }
 }

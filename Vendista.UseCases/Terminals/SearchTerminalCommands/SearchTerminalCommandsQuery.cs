@@ -29,14 +29,14 @@ public class SearchTerminalCommandsQuery : IRequest<PagedList<TerminalCommand>>
     public int TerminalId { get; set; }
     
     /// <summary>
-    /// Order by column name.
+    /// Order by column index.
     /// </summary>
     [FromQuery]
-    public string? OrderBy { get; set; }
-    
+    public int OrderBy { get; set; }
+
     /// <summary>
     /// Indicates whether the order is descending or not.
     /// </summary>
     [FromQuery]
-    public bool OrderDesc { get; set; }
+    public bool OrderDesc { get; set; } = true;
 }

@@ -21,9 +21,9 @@ public class TerminalCommandsSearchOptions
     public int TerminalId { get; set; }
     
     /// <summary>
-    /// Order by column name.
+    /// Order by column index.
     /// </summary>
-    public string OrderBy { get; set; }
+    public int OrderBy { get; set; }
     
     /// <summary>
     /// Indicates whether the order is descending or not.
