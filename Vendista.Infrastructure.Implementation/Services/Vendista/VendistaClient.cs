@@ -80,7 +80,7 @@ public class VendistaClient : IVendistaClient
     }
 
     /// <inheritdoc />
-    public async Task AddTerminalCommandAsync(TerminalCommandAddingOptions options, CancellationToken cancellationToken)
+    public async Task SendTerminalCommandAsync(TerminalCommandSendingOptions options, CancellationToken cancellationToken)
     {
         ThrowIfNotAuthenticated();
 
@@ -91,7 +91,7 @@ public class VendistaClient : IVendistaClient
         await client.PostAsync(request, cancellationToken);
     }
 
-    private string PrepareJsonPayload(TerminalCommandAddingOptions options)
+    private string PrepareJsonPayload(TerminalCommandSendingOptions options)
     {
         var payload = new JObject
         {

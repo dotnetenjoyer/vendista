@@ -28,9 +28,9 @@ public interface IVendistaClient : IDisposable
     Task<PagedList<TerminalCommand>> SearchTerminalCommandsAsync(TerminalCommandsSearchOptions options, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Add a new terminal command.
+    /// Send a terminal command.
     /// </summary>
-    /// <param name="options">Adding options.</param>
+    /// <param name="options">Sending options.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
-    Task AddTerminalCommandAsync(TerminalCommandAddingOptions options, CancellationToken cancellationToken);
+    Task SendTerminalCommandAsync(TerminalCommandSendingOptions options, CancellationToken cancellationToken);
 }

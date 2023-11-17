@@ -1,24 +1,22 @@
-using MediatR;
-
-namespace Vendista.UseCases.Terminals.AddTerminalCommand;
+namespace Vendista.Infrastructure.Abstractions.Services;
 
 /// <summary>
-/// Command to add terminal command.
+/// Contains elements for adding a command to the terminal.
 /// </summary>
-public class AddTerminalCommandCommand : IRequest
+public class TerminalCommandSendingOptions
 {
     /// <summary>
-    /// Terminal ID.
+    /// Terminal id.
     /// </summary>
     public int TerminalId { get; set; }
     
     /// <summary>
-    /// Command type ID.
+    /// Command type id.
     /// </summary>
     public int CommandTypeId { get; set; }
     
     /// <summary>
-    /// Collection of command parameter values.
+    /// Collection of command values.
     /// </summary>
     public IEnumerable<int> CommandValues { get; set; }
 }

@@ -2,11 +2,14 @@ using Microsoft.AspNetCore.Mvc;
 using MediatR;
 using Vendista.Domain.Entities;
 using Vendista.UseCases.Common;
-using Vendista.UseCases.Terminals.AddTerminalCommand;
+using Vendista.UseCases.Terminals.SendTerminalCommand;
 using Vendista.UseCases.Terminals.SearchTerminalCommands;
 
 namespace Vendista.WebApp.Controllers;
 
+/// <summary>
+/// Contains methods to manage terminals.
+/// </summary>
 [ApiController]
 [Route("api/[controller]")]
 public class TerminalController : ControllerBase
@@ -29,9 +32,9 @@ public class TerminalController : ControllerBase
         => mediator.Send(query, cancellationToken);
 
     /// <summary>
-    /// Add a new command to terminal.
+    /// Send a command to terminal.
     /// </summary>
     [HttpPost("command")]
-    public Task AddTerminalCommandAsync([FromBody] AddTerminalCommandCommand command, CancellationToken cancellationToken)
+    public Task SendTerminalCommandAsync([FromBody] SendTerminalCommandCommand command, CancellationToken cancellationToken)
         => mediator.Send(command, cancellationToken);
 }

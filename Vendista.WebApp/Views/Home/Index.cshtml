@@ -42,13 +42,7 @@
     </table>
     
     <div class="d-flex justify-content-md-center">
-        <ul class="pagination">
-            <li class="page-item"><a class="page-link" href="#">Previous</a></li>
-            <li class="page-item active"><a class="page-link" href="#">1</a></li>
-            <li class="page-item"><a class="page-link" href="#">2</a></li>
-            <li class="page-item"><a class="page-link" href="#">3</a></li>
-            <li class="page-item"><a class="page-link" href="#">Next</a></li>
-        </ul>  
+        <ul class="pagination"></ul>  
     </div>
     
 </div>
@@ -69,6 +63,11 @@
     const terminalCommandsTableBody = document.getElementById('terminal-commands');
 
     const formButton = document.getElementById('form-btn');
+    
+    let paginationSettings = {
+        page: 1,
+        pageSize: 10,
+     } 
     
     populateCommandSelectBox();
     updatedParametersForm();
@@ -112,11 +111,14 @@
             commandParametersForm.appendChild(container);
         }
     }
-    
-    async function fetchTerminalCommands() {
-        const response = await fetch(`api/terminal/${terminalIdInput.value}/commands?pageSize=10`); 
-        const pagedList = await response.json();
         
+    async function fetchTerminalCommands() {
+        const page = paginationSettings.page;
+        const pageSize = paginationSettings.pageSize;
+        
+        const response = await fetch(`api/terminal/${terminalIdInput.value}/commands?page=${page}&pageSize=${pageSize}`); 
+        const pagedList = await response.json();
+       
         removeAllChildNodes(terminalCommandsTableBody)
         
         let index = 1;
@@ -124,6 +126,37 @@
             const row = createRow(command, index);
             terminalCommandsTableBody.appendChild(row);
             index++;
+        }
+        
+        paginationSettings = {
+            page: pagedList.page,
+            pageSize: pagedList.pageSize,
+            totalItems: pagedList.totalItems,
+            totalPages: Math.ceil(pagedList.totalItems / pagedList.pageSize)
+        };
+        
+        updatePagination();
+    }
+    
+    function updatePagination() {
+        const pagination = document.querySelector('.pagination');
+        removeAllChildNodes(pagination);
+        
+        for (let i = 1; i <= paginationSettings.totalPages; i++) {
+            const item = document.createElement('li');            
+            item.classList = i == paginationSettings.page ? 'page-item active' : 'page-item';
+            
+            const itemLink = document.createElement('a')
+            itemLink.classList = 'page-link';
+            itemLink.textContent = i;
+            
+            item.appendChild(itemLink);
+            pagination.appendChild(item);
+            
+            item.addEventListener('click', () => {
+               paginationSettings.page = i;
+               fetchTerminalCommands()
+            });
         }
     }
     
