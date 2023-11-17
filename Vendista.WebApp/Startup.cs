@@ -10,6 +10,17 @@ namespace Vendista.WebApp;
 /// </summary>
 public class Startup
 {
+    private readonly IConfiguration configuration;
+
+    /// <summary>
+    /// Constructor.
+    /// </summary>
+    /// <param name="configuration">Configuration.</param>
+    public Startup(IConfiguration configuration)
+    {
+        this.configuration = configuration;
+    }
+
     /// <summary>
     /// Configure application services on startup.
     /// </summary>
@@ -26,7 +37,9 @@ public class Startup
         
         services.AddTransient<IVendistaClient, VendistaClient>(serviceProvider =>
         {
-            return new VendistaClient("user2", "password2");
+            var login = configuration["Vendista:login"];
+            var password = configuration["Vendista:password"];
+            return new VendistaClient(login, password);
         });
     }
 
