@@ -1,3 +1,5 @@
+using Serilog;
+
 namespace Vendista.WebApp;
 
 /// <summary>
@@ -13,6 +15,19 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
+        builder.Host.UseSerilog((context, services, configuration) =>
+        {
+            var hostEnvironment = services.GetRequiredService<IWebHostEnvironment>();
+            var logPath = Path.Combine(hostEnvironment.ContentRootPath, "Logs/log.txt");
+    
+            configuration
+                .ReadFrom.Configuration(context.Configuration, sectionName: "Serilog")
+                .ReadFrom.Services(services)
+                .Enrich.FromLogContext()
+                .WriteTo.Console()
+                .WriteTo.File(logPath, rollingInterval: RollingInterval.Day);
+        });
+        
         var startup = new Startup(builder.Configuration);
         startup.ConfigureServices(builder.Services);
 

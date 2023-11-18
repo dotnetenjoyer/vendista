@@ -1,6 +1,7 @@
 using Newtonsoft.Json.Linq;
 using RestSharp;
 using Vendista.Domain.Entities;
+using Vendista.Domain.Exceptions;
 using Vendista.Infrastructure.Abstractions.Services;
 using Vendista.Infrastructure.Implementation.Services.Vendista.Dtos;
 
@@ -186,7 +187,7 @@ public class VendistaClient : IVendistaClient
     {
         if (string.IsNullOrEmpty(accessToken))
         {
-            throw new Exception("Is not authenticated");
+            throw new InfrastructureException("The client is not initialized");
         }
     }
     

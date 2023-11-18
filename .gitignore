@@ -348,4 +348,4 @@ packages
 
 appsettings.Development.json
 
-/src/NS.Api/Logs
+/Vendista.WebApp/Logs

@@ -10,6 +10,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vendista.Infrastructure.Abs
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vendista.Infrastructure.Implementation", "Vendista.Infrastructure.Implementation\Vendista.Infrastructure.Implementation.csproj", "{F531EE52-ED00-43A4-83F4-DAFDA58BDED2}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Domain", "Domain", "{EA5F9EE9-43A4-4EB1-B561-0A83DC6CEE0C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastructure", "{7801BBD9-DEFE-4BAA-A5FB-2B4E6FCAA3A5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Application", "Application", "{03915485-F2D6-4E32-B90B-8D2990BA197B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,5 +42,12 @@ Global
 		{F531EE52-ED00-43A4-83F4-DAFDA58BDED2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F531EE52-ED00-43A4-83F4-DAFDA58BDED2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F531EE52-ED00-43A4-83F4-DAFDA58BDED2}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{3533210E-8571-4AAE-94E1-22F0D456A87B} = {EA5F9EE9-43A4-4EB1-B561-0A83DC6CEE0C}
+		{C267634A-D006-4F0B-B352-155D93B9654C} = {EA5F9EE9-43A4-4EB1-B561-0A83DC6CEE0C}
+		{CE7A0B0D-B3A0-4A60-8B6D-E3A4F225B1CD} = {EA5F9EE9-43A4-4EB1-B561-0A83DC6CEE0C}
+		{F531EE52-ED00-43A4-83F4-DAFDA58BDED2} = {7801BBD9-DEFE-4BAA-A5FB-2B4E6FCAA3A5}
+		{DDEB4567-E3A3-43DC-8A96-CA9EACBE324E} = {03915485-F2D6-4E32-B90B-8D2990BA197B}
 	EndGlobalSection
 EndGlobal
