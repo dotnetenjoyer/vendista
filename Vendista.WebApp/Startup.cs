@@ -41,19 +41,6 @@ public class Startup
             var password = configuration["Vendista:password"];
             return new VendistaClient(login, password);
         });
-        
-        // services.UseSerilog((context, services, configuration) =>
-        // {
-        //     var hostEnvironment = services.GetRequiredService<IWebHostEnvironment>();
-        //     var logPath = Path.Combine(hostEnvironment.ContentRootPath, "Logs/log.txt");
-        //
-        //     configuration
-        //         .ReadFrom.Configuration(context.Configuration, sectionName: "Serilog")
-        //         .ReadFrom.Services(services)
-        //         .Enrich.FromLogContext()
-        //         .WriteTo.Console()
-        //         .WriteTo.File(logPath, rollingInterval: RollingInterval.Day);
-        // });
     }
 
     /// <summary>

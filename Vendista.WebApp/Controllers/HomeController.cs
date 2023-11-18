@@ -20,6 +20,7 @@ public class HomeController : Controller
     public async Task<IActionResult> Index()
     {
         var commandTypes = await mediator.Send(new SearchCommandsQuery());
+
         var viewModel = new IndexViewModel
         {
             CommandTypes = commandTypes

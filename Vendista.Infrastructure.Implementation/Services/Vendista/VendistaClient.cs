@@ -36,7 +36,10 @@ public class VendistaClient : IVendistaClient
     /// <inheritdoc/>
     public async Task InitAsync(CancellationToken cancellationToken)
     {
-        var request = new RestRequest($"token?login={login}&password={password}");
+        var request = new RestRequest($"token")
+            .AddQueryParameter("login", login)
+            .AddQueryParameter("password", password);
+        
         var response = await client.GetAsync<AuthenticationResponse>(request, cancellationToken);
         accessToken = response.Token;
     }
